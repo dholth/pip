@@ -1146,6 +1146,7 @@ class RequirementSet(object):
 
     def install(self, install_options, global_options=()):
         """Install everything in this set (after having downloaded and unpacked the packages)"""
+        successful = []
         to_install = [r for r in self.requirements.values()
                       if not r.satisfied_by]
 
@@ -1157,6 +1158,9 @@ class RequirementSet(object):
                 if requirement.conflicts_with:
                     logger.notify('Found existing installation: %s'
                                   % requirement.conflicts_with)
+                    if requirement.name == 'distribute':
+                        logger.notify('Cannot upgrade distribute. Skipping.')
+                        continue
                     logger.indent += 2
                     try:
                         requirement.uninstall(auto_confirm=True)
@@ -1173,9 +1177,10 @@ class RequirementSet(object):
                     if requirement.conflicts_with and requirement.install_succeeded:
                         requirement.commit_uninstall()
                 requirement.remove_temporary_source()
+                successful.append(requirement)
         finally:
             logger.indent -= 2
-        self.successfully_installed = to_install
+        self.successfully_installed = successful
 
     def create_bundle(self, bundle_filename):
         ## FIXME: can't decide which is better; zip is easier to read
