@@ -13,6 +13,7 @@ import shutil
 import stat
 import tarfile
 import zipfile
+import subprocess
 
 from pip._internal.exceptions import InstallationError
 from pip._internal.utils.filetypes import (
@@ -251,6 +252,15 @@ def unpack_file(
             location,
             flatten=not filename.endswith('.whl')
         )
+        if filename.endswith('.whl'): # check for nested zip
+            prefix = os.path.basename(filename).rsplit('-', 3)[0] + '.data'
+            zstd_zip = os.path.join(location, prefix + '.zip.zst')
+            if os.path.exists(zstd_zip):
+                subprocess.check_call(['zstd', '-d', zstd_zip])
+                plain_zip = os.path.join(location, prefix + '.zip')
+                unzip_file(plain_zip, location, flatten=False)
+                os.unlink(plain_zip)
+            os.unlink(zstd_zip)
     elif (
         content_type == 'application/x-gzip' or
         tarfile.is_tarfile(filename) or
