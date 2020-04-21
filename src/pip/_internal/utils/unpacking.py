@@ -255,11 +255,11 @@ def unpack_file(
         if filename.endswith('.whl'):
             # allow nested zip for greater compression
             # compressssed with zstd or by the outer archive
-            prefix = os.path.basename(filename).rsplit('-', 3)[0] + '.data'
-            zstd_zip = os.path.join(location, prefix + '.zip.zst')
-            plain_zip = os.path.join(location, prefix + '.zip')
+            prefix = "-".join(os.path.basename(filename).split("-")[:2]) + ".data"
+            zstd_zip = os.path.join(location, prefix + ".zip.zst")
+            plain_zip = os.path.join(location, prefix + ".zip")
             if os.path.exists(zstd_zip):
-                subprocess.check_call(['zstd', '-d', zstd_zip])
+                subprocess.check_call(["zstd", "-d", zstd_zip])
                 os.unlink(zstd_zip)
             if os.path.exists(plain_zip):
                 unzip_file(plain_zip, location, flatten=False)

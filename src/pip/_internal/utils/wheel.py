@@ -27,7 +27,7 @@ else:
     from zipfile import BadZipFile
 
 
-VERSION_COMPATIBLE = (1, 0)
+VERSION_COMPATIBLE = (2, 0)
 
 
 logger = logging.getLogger(__name__)
